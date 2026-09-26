@@ -43,7 +43,7 @@ class Board
         {
             new Property("Старт"),
             new Property("Hot Tea"),
-            new Property("Aice Coffe"),
+            new Property("Ice Coffe"),
             new Property("Hova Poshta"),
             new Property("BMW"),
             new Property("AirPlain")
@@ -84,62 +84,62 @@ class Game
     }
 
     public void Start()
+{
+    Console.WriteLine("=================================");
+    Console.WriteLine("             МОНОПОЛІЯ           ");
+    Console.WriteLine("=================================");
+
+    int currentPlayer = 0;
+
+    while (true)
     {
-        Console.WriteLine("=================================");
-        Console.WriteLine("             МОНОПОЛІЯ           ");
-        Console.WriteLine("=================================");
+        Player player = Players[currentPlayer];
 
-        int currentPlayer = 0;
-
+        if (player.SkipNextTurn)
         {
-            Player player = Players[currentPlayer];
-
-            if (player.SkipNextTurn)
-            {
-                Console.WriteLine();
-                Console.WriteLine($" {player.Name} пропускає наступний хід.");
-                player.SkipNextTurn = false;
-
-                currentPlayer = (currentPlayer + 1) % Players.Count;
-                continue;
-            }
-
             Console.WriteLine();
-            Console.WriteLine("---------------------------------");
-            Console.WriteLine($"Хід: {player.Name}");
-            Console.WriteLine($"Гроші: ${player.Money}");
-
-            int currentSector = player.Position + 1;
-
-            Console.WriteLine($"Сектор: №{currentSector}");
-            Console.WriteLine($"Зараз: {Board.Properties[player.Position].Name}");
-            Console.WriteLine("---------------------------------");
-
-            Console.WriteLine("Натисніть ENTER, щоб кинути кубик...");
-            Console.ReadLine();
-
-            int dice = Dice.Roll();
-
-            Console.WriteLine($"{player.Name} викинув {dice}");
-
-            player.Position = (player.Position + dice) % Board.Properties.Count;
-
-            int sectorNumber = player.Position + 1;
-            Property property = Board.Properties[player.Position];
-
-            Console.WriteLine();
-            Console.WriteLine($"Сектор №{sectorNumber}: {property.Name}");
-
-            if (property.Name == "Старт")
-            {
-                Console.WriteLine();
-                Console.WriteLine(" Ви знаходитеся на СТАРТІ!");
-            }
-
+            Console.WriteLine($" {player.Name} пропускає наступний хід.");
+            player.SkipNextTurn = false;
 
             currentPlayer = (currentPlayer + 1) % Players.Count;
+            continue;
         }
+
+        Console.WriteLine();
+        Console.WriteLine("---------------------------------");
+        Console.WriteLine($"Хід: {player.Name}");
+        Console.WriteLine($"Гроші: ${player.Money}");
+
+        int currentSector = player.Position + 1;
+
+        Console.WriteLine($"Сектор: №{currentSector}");
+        Console.WriteLine($"Зараз: {Board.Properties[player.Position].Name}");
+        Console.WriteLine("---------------------------------");
+
+        Console.WriteLine("Натисніть ENTER, щоб кинути кубик...");
+        Console.ReadLine();
+
+        int dice = Dice.Roll();
+
+        Console.WriteLine($"{player.Name} викинув {dice}");
+
+        player.Position = (player.Position + dice) % Board.Properties.Count;
+
+        int sectorNumber = player.Position + 1;
+        Property property = Board.Properties[player.Position];
+
+        Console.WriteLine();
+        Console.WriteLine($"Сектор №{sectorNumber}: {property.Name}");
+
+        if (property.Name == "Старт")
+        {
+            Console.WriteLine();
+            Console.WriteLine(" Ви знаходитеся на СТАРТІ!");
+        }
+
+        currentPlayer = (currentPlayer + 1) % Players.Count;
     }
+  }
 }
 
 class Program
