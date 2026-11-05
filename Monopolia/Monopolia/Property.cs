@@ -22,6 +22,7 @@
         public int PurchasePrice { get; }
         public Player? Owner { get; set; } = null;
         public bool IsMortgaged { get; set; } = false;
+        public Board? Board { get; set; }
 
         public StreetProperty(string name, int price, string color, int baseRent)
             : base(name)
@@ -34,13 +35,10 @@
         public int GetCurrentRent()
         {
             if (IsMortgaged || Owner == null) return 0;
+            if (Board == null) return BaseRent;
 
-            int ownedCount = Owner.OwnedProperties
-                .OfType<StreetProperty>()
-                .Count(p => p.ColorGroup == this.ColorGroup);
-
-            if (ownedCount == 2) return BaseRent * 2;
-            if (ownedCount >= 3) return BaseRent * 3;
+            if (Board.HasFullMonopoly(ColorGroup, Owner)) return BaseRent * 3;
+            if (Board.CountOwnedInGroup(ColorGroup, Owner) == 2) return BaseRent * 2;
 
             return BaseRent;
         }

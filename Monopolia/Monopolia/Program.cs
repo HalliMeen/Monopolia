@@ -127,6 +127,10 @@ namespace MonopoliaLab2
                 Console.WriteLine($"\nХід гравця: {current.Name} (Баланс: ${current.Balance}) — натисніть клавішу для кидка кубика...");
                 Console.ReadKey(true);
 
+                var monopolies = board.GetMonopolies(current).ToList();
+                if (monopolies.Count > 0)
+                    Console.WriteLine($"Ваші монополії: {string.Join(", ", monopolies)}");
+
                 int roll = dice.Roll();
                 Console.WriteLine($"{current.Name} викинув: {roll}");
 
@@ -142,6 +146,13 @@ namespace MonopoliaLab2
                         Console.WriteLine($"Філія {sp.Name} доступна для купівлі за ${sp.PurchasePrice}. Ваш баланс: ${current.Balance}");
                         if (current.Balance >= sp.PurchasePrice)
                         {
+                            int owned = board.CountOwnedInGroup(sp.ColorGroup, current);
+                            int total = board.GetStreetGroup(sp.ColorGroup).Count;
+                            Console.WriteLine($"У групі {sp.ColorGroup} у вас {owned} з {total}.");
+                            if (board.MissingForMonopoly(sp.ColorGroup, current) == 1)
+                            {
+                                Console.WriteLine("Купівля цієї вулиці дасть вам монополію (оренда ×3)!");
+                            }
                             Console.Write("Бажаєте купити? (y/n): ");
                             var ans = Console.ReadLine();
                             if (!string.IsNullOrWhiteSpace(ans) && ans.ToLower().StartsWith("y"))
@@ -182,7 +193,7 @@ namespace MonopoliaLab2
                 if (current.Balance <= 0)
                 {
                     Console.WriteLine($"У {current.Name} баланс ${current.Balance}. Перевіряємо можливості продажу філій...");
-                    TrySellPropertiesToCoverDebt(current);
+                    TrySellPropertiesToCoverDebt(current, board);
 
                     if (current.Balance <= 0)
                     {
@@ -218,7 +229,7 @@ namespace MonopoliaLab2
             Console.ReadKey(true);
         }
 
-        static void TrySellPropertiesToCoverDebt(Player player)
+        static void TrySellPropertiesToCoverDebt(Player player, Board board)
         {
             while (player.Balance <= 0 && player.OwnedProperties.Count > 0)
             {
@@ -226,7 +237,8 @@ namespace MonopoliaLab2
                 for (int i = 0; i < player.OwnedProperties.Count; i++)
                 {
                     var p = player.OwnedProperties[i];
-                    Console.WriteLine($"  {i + 1}. {p.Name} - продажна ціна ${p.PurchasePrice / 2}");
+                    string mark = board.HasFullMonopoly(p.ColorGroup, player) ? " [МОНОПОЛІЯ]" : "";
+                    Console.WriteLine($"  {i + 1}. {p.Name}{mark} - продажна ціна ${p.PurchasePrice / 2}");
                 }
                 Console.Write("Введіть номер філії для продажу або 'n' щоб відмовитись: ");
                 var input = Console.ReadLine();

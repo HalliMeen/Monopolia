@@ -107,7 +107,27 @@
                     colorGroupGraph[cell.ColorGroup] = new List<StreetProperty>();
                 }
                 colorGroupGraph[cell.ColorGroup].Add(cell);
+
+                cell.Board = this; // щоб вулиця могла звертатися до графа
             }
+        }
+
+        // Скільки вулиць цього кольору має гравець
+        public int CountOwnedInGroup(string colorGroup, Player player)
+        {
+            return GetStreetGroup(colorGroup).Count(s => s.Owner == player);
+        }
+
+        // Скількох вулиць не вистачає до монополії
+        public int MissingForMonopoly(string colorGroup, Player player)
+        {
+            return GetStreetGroup(colorGroup).Count - CountOwnedInGroup(colorGroup, player);
+        }
+
+        // Усі кольори, де гравець має монополію
+        public IEnumerable<string> GetMonopolies(Player player)
+        {
+            return colorGroupGraph.Keys.Where(color => HasFullMonopoly(color, player));
         }
 
         public int GetNewPosition(int currentPosition, int steps)
@@ -131,7 +151,7 @@
 
             var groupStreets = colorGroupGraph[colorGroup];
 
-        
+
             return groupStreets.All(street => player.OwnedProperties.Contains(street));
         }
 
