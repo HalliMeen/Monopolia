@@ -110,7 +110,7 @@ namespace Monopolia
 
                     if (current.JailTurnsCount <= 0)
                     {
-                        current.Jail = false; ;
+                        current.Jail = false;
                         current.JailTurnsCount = 0;
                         Console.WriteLine($"{current.Name} вийшов з тюрми і може грати наступного разу.");
                     }
@@ -149,7 +149,7 @@ namespace Monopolia
                     if (sp.Owner == null)
                     {
                         Console.WriteLine($"Філія {sp.Name} доступна для купівлі за ${sp.PurchasePrice}. Ваш баланс: ${current.Balance}");
-                        if (current.Balance >= sp.PurchasePrice)
+                        if (current.Balance > sp.PurchasePrice)
                         {
                             int owned = board.CountOwnedInGroup(sp.ColorGroup, current);
                             int total = board.GetStreetGroup(sp.ColorGroup).Count;
@@ -224,7 +224,20 @@ namespace Monopolia
                     if (currentIndex >= activePlayers.Count) currentIndex = 0;
                     continue;
                 }
+                currentIndex++;
             }
+            var winner = players.FirstOrDefault(p => !p.IsBankrupt);
+            if (winner != null)
+            {
+                Console.WriteLine($"\nГра завершена. Переможець: {winner.Name} з балансом ${winner.Balance}!");
+            }
+            else
+            {
+                Console.WriteLine("\nГра завершена. Переможців не знайдено.");
+            }
+
+            Console.WriteLine("Натисніть будь-яку клавішу для виходу...");
+            Console.ReadKey(true);
         }
         static void TrySellPropertiesToCoverDebt(Player player, Board board)
         {
