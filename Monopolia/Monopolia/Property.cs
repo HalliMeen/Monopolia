@@ -1,7 +1,6 @@
 ﻿namespace MonopoliaLab2
 {
     using System;
-    using System.Linq;
 
     public abstract class BoardCell
     {

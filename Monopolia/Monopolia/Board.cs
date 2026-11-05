@@ -24,8 +24,8 @@
 
                 // (Коричнева група)
                 new StreetProperty("Проспект Перемоги", 600, "Brown", 20),
-                new StreetProperty("Вулиця Дерибасівська", 600, "Brown", 40),
-                new StreetProperty("Вулиця Пушкінська", 800, "Brown", 40),       
+                new StreetProperty("Вулиця Дерибасівська", 800, "Brown", 40),
+                new StreetProperty("Вулиця Пушкінська", 1000, "Brown", 60),       
 
                 // Податкова
                 new TaxCell("Податок на доходи", 500),                         
@@ -63,7 +63,7 @@
                 // (Червона група)
                 new StreetProperty("Собор", 2200, "Red", 180),
                 new StreetProperty("Хрещатик", 2400, "Red", 200),
-                new StreetProperty("Вулиця Набережна", 2400, "Red", 200),        
+                new StreetProperty("Вулиця Набережна", 2600, "Red", 220),        
 
                 // В'язниця
                 new PoliceCell("Тюрма"),                       
@@ -85,15 +85,14 @@
                 // (Зелена)
                 new StreetProperty("Французький бульвар", 3000, "Green", 260),
                 new StreetProperty("Катерининська площа", 3200, "Green", 280),
-                new StreetProperty("Вулиця Артема", 3500, "Green", 320),         
+                new StreetProperty("Вулиця Артема", 3400, "Green", 320),         
 
                 // (Темно-синя)
-                new StreetProperty("Андріївський узвіз", 3500, "DarkBlue", 500),
-                new StreetProperty("Бульвар Шевченка", 3800, "DarkBlue", 400),
-                new StreetProperty("Центральна площа", 4000, "DarkBlue", 450)
+                new StreetProperty("Андріївський узвіз", 3400, "DarkBlue", 320),
+                new StreetProperty("Бульвар Шевченка", 3600, "DarkBlue", 340),
+                new StreetProperty("Центральна площа", 3800, "DarkBlue", 360)
             };
 
-            // Ініціалізація та побудова графа колірних груп при створенні дошки
             colorGroupGraph = new Dictionary<string, List<StreetProperty>>();
             BuildColorGroupGraph();
         }

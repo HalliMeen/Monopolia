@@ -36,7 +36,7 @@ namespace MonopoliaLab2
                     name = $"Гравець {i}";
                 }
 
-                Player.Token chosen = availableTokens[0];
+                Player.Token chosen = default;
                 bool chosenOk = false;
                 while (!chosenOk)
                 {
@@ -61,6 +61,7 @@ namespace MonopoliaLab2
 
                 players.Add(new Player(name, chosen));
                 Console.WriteLine($"Додано {name} з фішкою {chosen}\n");
+
             }
 
             var board = new Board();
@@ -80,14 +81,9 @@ namespace MonopoliaLab2
 
             while (activePlayers.Count > 1)
             {
-                var current = activePlayers[currentIndex % activePlayers.Count];
 
-                if (current.IsBankrupt)
-                {
-                    activePlayers.RemoveAt(currentIndex % activePlayers.Count);
-                    if (activePlayers.Count <= 1) break;
-                    continue;
-                }
+                currentIndex %= activePlayers.Count;
+                var current = activePlayers[currentIndex];
 
                 // --- Обробка перебування на Курорті ---
                 if (current.Curort)
@@ -114,7 +110,7 @@ namespace MonopoliaLab2
 
                     if (current.JailTurnsCount <= 0)
                     {
-                        current.Curort = false;
+                        current.Jail = false; ;
                         current.JailTurnsCount = 0;
                         Console.WriteLine($"{current.Name} вийшов з тюрми і може грати наступного разу.");
                     }
@@ -134,11 +130,20 @@ namespace MonopoliaLab2
                 int roll = dice.Roll();
                 Console.WriteLine($"{current.Name} викинув: {roll}");
 
-                int newPos = board.GetNewPosition(current.Position, roll);
+                int oldPos = current.Position;
+                int newPos = board.GetNewPosition(oldPos, roll);
                 current.Position = newPos;
+                if (newPos < oldPos && newPos != 0)
+                {
+                    current.Balance += 200;
+                    Console.WriteLine($"{current.Name} пройшов Старт і отримує $200.");
+                }
                 var cell = board.GetCell(newPos);
                 Console.WriteLine($"{current.Name} став на клітинку: {cell.Name}");
 
+
+                Player? rentCreditor = null; // кому належить оренда
+                int rentDue = 0;             // скільки оренди нараховано
                 if (cell is StreetProperty sp)
                 {
                     if (sp.Owner == null)
@@ -179,8 +184,8 @@ namespace MonopoliaLab2
                             int rent = sp.GetCurrentRent();
                             Console.WriteLine($"Потрібно заплатити оренду ${rent} власнику {sp.Owner.Name}.");
                             current.Balance -= rent;
-                            sp.Owner.Balance += rent;
-                            Console.WriteLine($"Після оплати баланс {current.Name}: ${current.Balance}, баланс {sp.Owner.Name}: ${sp.Owner.Balance}");
+                            rentCreditor = sp.Owner;
+                            rentDue = rent;
                         }
                     }
                 }
@@ -194,41 +199,33 @@ namespace MonopoliaLab2
                 {
                     Console.WriteLine($"У {current.Name} баланс ${current.Balance}. Перевіряємо можливості продажу філій...");
                     TrySellPropertiesToCoverDebt(current, board);
-
-                    if (current.Balance <= 0)
-                    {
-                        Console.WriteLine($"{current.Name} став банкрутом і вибуває з гри.");
-                        foreach (var prop in current.OwnedProperties.ToList())
-                        {
-                            prop.Owner = null;
-                        }
-                        current.OwnedProperties.Clear();
-                        current.IsBankrupt = true;
-
-                        activePlayers = activePlayers.Where(p => !p.IsBankrupt).ToList();
-                        if (currentIndex >= activePlayers.Count) currentIndex = 0;
-                        continue;
-                    }
                 }
 
-                currentIndex++;
-                activePlayers = activePlayers.Where(p => !p.IsBankrupt).ToList();
-            }
+                // --- Виплата оренди власнику (тільки те, що боржник реально сплатив) ---
+                if (rentCreditor != null)
+                {
+                    int unpaid = Math.Max(0, -current.Balance);   // скільки не вистачило
+                    int paid = Math.Max(0, rentDue - unpaid);     // скільки реально отримав власник
+                    rentCreditor.Balance += paid;
+                    Console.WriteLine($"{rentCreditor.Name} отримує ${paid} оренди від {current.Name}.");
+                }
 
-            var winner = players.FirstOrDefault(p => !p.IsBankrupt);
-            if (winner != null)
-            {
-                Console.WriteLine($"\nГра завершена. Переможець: {winner.Name} з балансом ${winner.Balance}!");
-            }
-            else
-            {
-                Console.WriteLine("\nГра завершена. Переможців не знайдено.");
-            }
+                if (current.Balance <= 0)
+                {
+                    Console.WriteLine($"{current.Name} став банкрутом і вибуває з гри.");
+                    foreach (var prop in current.OwnedProperties.ToList())
+                    {
+                        prop.Owner = null;
+                    }
+                    current.OwnedProperties.Clear();
+                    current.IsBankrupt = true;
 
-            Console.WriteLine("Натисніть будь-яку клавішу для виходу...");
-            Console.ReadKey(true);
+                    activePlayers.RemoveAt(currentIndex);
+                    if (currentIndex >= activePlayers.Count) currentIndex = 0;
+                    continue;
+                }
+            }
         }
-
         static void TrySellPropertiesToCoverDebt(Player player, Board board)
         {
             while (player.Balance <= 0 && player.OwnedProperties.Count > 0)
@@ -242,7 +239,7 @@ namespace MonopoliaLab2
                 }
                 Console.Write("Введіть номер філії для продажу або 'n' щоб відмовитись: ");
                 var input = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(input)) continue;
+                if (string.IsNullOrWhiteSpace(input)) { Console.WriteLine("Невірний вибір. Спробуйте ще раз."); continue; }
                 if (input.Trim().ToLower() == "n") break;
                 if (int.TryParse(input, out int idx) && idx >= 1 && idx <= player.OwnedProperties.Count)
                 {
