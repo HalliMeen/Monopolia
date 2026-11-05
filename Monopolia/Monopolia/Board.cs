@@ -1,4 +1,4 @@
-﻿namespace MonopoliaLab2
+﻿namespace Monopolia
 {
     using System;
     using System.Collections.Generic;
