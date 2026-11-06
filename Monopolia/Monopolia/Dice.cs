@@ -2,13 +2,13 @@
 {
     using System;
 
-    class Dice
+    public class Dice : IDice
     {
-        private Random random = new Random();
+        private readonly Random random = new Random();
 
         public int Roll()
         {
-            return random.Next(1,7);
+            return random.Next(1, 7);
         }
     }
 }

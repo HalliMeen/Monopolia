@@ -65,7 +65,8 @@ namespace Monopolia
             }
 
             var board = new Board();
-            var dice = new Dice();
+            Console.WriteLine("Оберіть скількома кубикиками будете грати (Введіть 1 або 2): ");
+            IDice dice = Console.ReadLine() == "2" ? new TwoDice() : new Dice();
 
             Console.WriteLine("Гравці готові:");
             foreach (var p in players)
