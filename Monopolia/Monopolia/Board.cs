@@ -1,7 +1,8 @@
-﻿namespace Monopolia
+﻿ namespace Monopolia
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
 
     public class Board
@@ -14,84 +15,7 @@
 
         public Board()
         {
-            cells = new BoardCell[]
-            {
-                // 1. Старт
-                new BonusCell("Старт", 200),                                   
-
-                // 2. Бонус
-                new BonusCell("Премія за старанність", 1000),                    
-
-                // (Коричнева група)
-                new StreetProperty("Проспект Перемоги", 600, "Brown", 20),
-                new StreetProperty("Вулиця Дерибасівська", 800, "Brown", 40),
-                new StreetProperty("Вулиця Пушкінська", 1000, "Brown", 60),       
-
-                // Податкова
-                new TaxCell("Податок на доходи", 500),                         
-
-                // Шанс
-                new ChanceCell("Зона удачі"),                                  
-
-                // (Блакитна група)
-                new StreetProperty("Вулиця Сумська", 1000, "LightBlue", 60),
-                new StreetProperty("Проспект Гагаріна", 1200, "LightBlue", 80),
-                new StreetProperty("Вулиця Соборна", 1400, "LightBlue", 100),    
-
-                // Бонус
-                new BonusCell("Знайдено скарб", 1500),                          
-
-                // Курорт
-                new ResortCell("Курорт"),                        
-
-                // (Рожева)
-                new StreetProperty("Вулиця Лесі Українки", 1400, "Pink", 100),
-                new StreetProperty("Вулиця Франка", 1600, "Pink", 120),
-                new StreetProperty("Вулиця Городоцька", 1800, "Pink", 140),      
-
-                // (Помаранчева)
-                new StreetProperty("Вулиця Шевченка", 1800, "Orange", 140),
-                new StreetProperty("Вулиця Свободи", 2000, "Orange", 160),
-                new StreetProperty("Проспект Чорновола", 2200, "Orange", 180),   
-
-                // Податкова
-                new TaxCell("Податок на майно", 500),                          
-
-                // Шанс
-                new ChanceCell("Зона удачі"),                                 
-
-                // (Червона група)
-                new StreetProperty("Собор", 2200, "Red", 180),
-                new StreetProperty("Хрещатик", 2400, "Red", 200),
-                new StreetProperty("Вулиця Набережна", 2600, "Red", 220),        
-
-                // В'язниця
-                new PoliceCell("Тюрма"),                       
-
-                // Шанс
-                new ChanceCell("Зона удачі"),                                  
-
-                // (Жовта група)
-                new StreetProperty("Вулиця Зелена", 2600, "Yellow", 220),
-                new StreetProperty("Вулиця Личаківська", 2800, "Yellow", 240),
-                new StreetProperty("Приморський бульвар", 3000, "Yellow", 260),  
-
-                // Бонус
-                new BonusCell("Спадщина", 2000),                                
-
-                // Шанс
-                new ChanceCell("Зона удачі"),                                  
-
-                // (Зелена)
-                new StreetProperty("Французький бульвар", 3000, "Green", 260),
-                new StreetProperty("Катерининська площа", 3200, "Green", 280),
-                new StreetProperty("Вулиця Артема", 3400, "Green", 320),         
-
-                // (Темно-синя)
-                new StreetProperty("Андріївський узвіз", 3400, "DarkBlue", 320),
-                new StreetProperty("Бульвар Шевченка", 3600, "DarkBlue", 340),
-                new StreetProperty("Центральна площа", 3800, "DarkBlue", 360)
-            };
+            cells = BoardLoader.Load(Path.Combine(AppContext.BaseDirectory, "board.json"));
 
             colorGroupGraph = new Dictionary<string, List<StreetProperty>>();
             BuildColorGroupGraph();

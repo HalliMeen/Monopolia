@@ -1,3 +1,5 @@
+
+
 namespace Monopolia
 {
     using System;
@@ -61,7 +63,6 @@ namespace Monopolia
 
                 players.Add(new Player(name, chosen));
                 Console.WriteLine($"Додано {name} з фішкою {chosen}\n");
-
             }
 
             var board = new Board();
@@ -82,7 +83,6 @@ namespace Monopolia
 
             while (activePlayers.Count > 1)
             {
-
                 currentIndex %= activePlayers.Count;
                 var current = activePlayers[currentIndex];
 
@@ -139,12 +139,13 @@ namespace Monopolia
                     current.Balance += 200;
                     Console.WriteLine($"{current.Name} пройшов Старт і отримує $200.");
                 }
+
                 var cell = board.GetCell(newPos);
                 Console.WriteLine($"{current.Name} став на клітинку: {cell.Name}");
 
-
                 Player? rentCreditor = null; // кому належить оренда
                 int rentDue = 0;             // скільки оренди нараховано
+
                 if (cell is StreetProperty sp)
                 {
                     if (sp.Owner == null)
@@ -155,10 +156,12 @@ namespace Monopolia
                             int owned = board.CountOwnedInGroup(sp.ColorGroup, current);
                             int total = board.GetStreetGroup(sp.ColorGroup).Count;
                             Console.WriteLine($"У групі {sp.ColorGroup} у вас {owned} з {total}.");
+
                             if (board.MissingForMonopoly(sp.ColorGroup, current) == 1)
                             {
                                 Console.WriteLine("Купівля цієї вулиці дасть вам монополію (оренда ×3)!");
                             }
+
                             Console.Write("Бажаєте купити? (y/n): ");
                             var ans = Console.ReadLine();
                             if (!string.IsNullOrWhiteSpace(ans) && ans.ToLower().StartsWith("y"))
@@ -205,8 +208,8 @@ namespace Monopolia
                 // --- Виплата оренди власнику (тільки те, що боржник реально сплатив) ---
                 if (rentCreditor != null)
                 {
-                    int unpaid = Math.Max(0, -current.Balance);   // скільки не вистачило
-                    int paid = Math.Max(0, rentDue - unpaid);     // скільки реально отримав власник
+                    int unpaid = Math.Max(0, -current.Balance);
+                    int paid = Math.Max(0, rentDue - unpaid);
                     rentCreditor.Balance += paid;
                     Console.WriteLine($"{rentCreditor.Name} отримує ${paid} оренди від {current.Name}.");
                 }
@@ -218,6 +221,7 @@ namespace Monopolia
                     {
                         prop.Owner = null;
                     }
+
                     current.OwnedProperties.Clear();
                     current.IsBankrupt = true;
 
@@ -225,12 +229,20 @@ namespace Monopolia
                     if (currentIndex >= activePlayers.Count) currentIndex = 0;
                     continue;
                 }
+
                 currentIndex++;
             }
+
             var winner = players.FirstOrDefault(p => !p.IsBankrupt);
+
             if (winner != null)
             {
                 Console.WriteLine($"\nГра завершена. Переможець: {winner.Name} з балансом ${winner.Balance}!");
+
+                // Зберігаємо дату, учасників та переможця в історію ігор
+                GameHistory.Save(players.Select(p => p.Name).ToList(), winner.Name);
+
+                Console.WriteLine("Історію гри збережено!");
             }
             else
             {
@@ -240,6 +252,7 @@ namespace Monopolia
             Console.WriteLine("Натисніть будь-яку клавішу для виходу...");
             Console.ReadKey(true);
         }
+
         static void TrySellPropertiesToCoverDebt(Player player, Board board)
         {
             while (player.Balance <= 0 && player.OwnedProperties.Count > 0)
@@ -251,10 +264,18 @@ namespace Monopolia
                     string mark = board.HasFullMonopoly(p.ColorGroup, player) ? " [МОНОПОЛІЯ]" : "";
                     Console.WriteLine($"  {i + 1}. {p.Name}{mark} - продажна ціна ${p.PurchasePrice / 2}");
                 }
+
                 Console.Write("Введіть номер філії для продажу або 'n' щоб відмовитись: ");
                 var input = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(input)) { Console.WriteLine("Невірний вибір. Спробуйте ще раз."); continue; }
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.WriteLine("Невірний вибір. Спробуйте ще раз.");
+                    continue;
+                }
+
                 if (input.Trim().ToLower() == "n") break;
+
                 if (int.TryParse(input, out int idx) && idx >= 1 && idx <= player.OwnedProperties.Count)
                 {
                     var prop = player.OwnedProperties[idx - 1];
