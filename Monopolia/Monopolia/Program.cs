@@ -151,7 +151,7 @@ namespace Monopolia
                     if (sp.Owner == null)
                     {
                         Console.WriteLine($"Філія {sp.Name} доступна для купівлі за ${sp.PurchasePrice}. Ваш баланс: ${current.Balance}");
-                        if (current.Balance > sp.PurchasePrice)
+                        if (current.Balance >= sp.PurchasePrice)
                         {
                             int owned = board.CountOwnedInGroup(sp.ColorGroup, current);
                             int total = board.GetStreetGroup(sp.ColorGroup).Count;
@@ -199,7 +199,7 @@ namespace Monopolia
                 }
 
                 // --- Перевірка банкрутства ---
-                if (current.Balance <= 0)
+                if (current.Balance < 0)
                 {
                     Console.WriteLine($"У {current.Name} баланс ${current.Balance}. Перевіряємо можливості продажу філій...");
                     TrySellPropertiesToCoverDebt(current, board);
@@ -214,7 +214,7 @@ namespace Monopolia
                     Console.WriteLine($"{rentCreditor.Name} отримує ${paid} оренди від {current.Name}.");
                 }
 
-                if (current.Balance <= 0)
+                if (current.Balance < 0)
                 {
                     Console.WriteLine($"{current.Name} став банкрутом і вибуває з гри.");
                     foreach (var prop in current.OwnedProperties.ToList())
@@ -255,7 +255,7 @@ namespace Monopolia
 
         static void TrySellPropertiesToCoverDebt(Player player, Board board)
         {
-            while (player.Balance <= 0 && player.OwnedProperties.Count > 0)
+            while (player.Balance < 0 && player.OwnedProperties.Count > 0)
             {
                 Console.WriteLine("У вас є філії, які можна продати за половину ціни:");
                 for (int i = 0; i < player.OwnedProperties.Count; i++)
@@ -267,6 +267,8 @@ namespace Monopolia
 
                 Console.Write("Введіть номер філії для продажу або 'n' щоб відмовитись: ");
                 var input = Console.ReadLine();
+
+                if (input == null) break;
 
                 if (string.IsNullOrWhiteSpace(input))
                 {

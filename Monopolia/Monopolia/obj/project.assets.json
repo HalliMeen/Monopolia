@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Проекти\\Monopolia\\Monopolia\\Monopolia.csproj",
+      "projectUniqueName": "C:\\Users\\User\\OneDrive\\Документи\\GitHub\\Monopolia\\Monopolia\\Monopolia\\Monopolia.csproj",
       "projectName": "Monopolia",
-      "projectPath": "C:\\Проекти\\Monopolia\\Monopolia\\Monopolia.csproj",
+      "projectPath": "C:\\Users\\User\\OneDrive\\Документи\\GitHub\\Monopolia\\Monopolia\\Monopolia\\Monopolia.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Проекти\\Monopolia\\Monopolia\\obj\\",
+      "outputPath": "C:\\Users\\User\\OneDrive\\Документи\\GitHub\\Monopolia\\Monopolia\\Monopolia\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

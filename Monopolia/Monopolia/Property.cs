@@ -10,7 +10,7 @@
         {
             Name = name;
         }
-        public abstract void OnPlayerLand(Player visitor);
+        public virtual void OnPlayerLand(Player visitor) { }
 
     }
 
@@ -40,32 +40,6 @@
             if (Board.CountOwnedInGroup(ColorGroup, Owner) == 2) return BaseRent * 2;
 
             return BaseRent;
-        }
-        public override void OnPlayerLand(Player visitor)
-        {
-            if (Owner == null)
-            {
-                Console.WriteLine($"Нерухомість {Name} вільна. {visitor.Name} Може її купити за ${PurchasePrice}.");
-                return;
-            }
-
-            if (Owner == visitor)
-            {
-                Console.WriteLine($"Нерухомість {visitor.Name} став на свою власну філію {Name}.");
-                return;
-            }
-
-            if (IsMortgaged)
-            {
-                Console.WriteLine($"Нерухомість Філія {Name} закладена. Оренда не знімається.");
-                return;
-            }
-
-            int rentAmount = GetCurrentRent();
-            visitor.Balance -= rentAmount;
-            Owner.Balance += rentAmount;
-
-            Console.WriteLine($"Оренда {visitor.Name} заплатив ${rentAmount} оренду для {Owner.Name}!");
         }
     }
 
@@ -101,7 +75,6 @@
     public class BonusCell : BoardCell
     {
         public int BonusAmount { get; }
-        private Random random = new Random();
 
         public BonusCell(string name, int bonusAmount) : base(name)
         {
@@ -110,19 +83,8 @@
 
         public override void OnPlayerLand(Player visitor)
         {
-            int eventid = random.Next(1, 3);
-            if (eventid == 1)
-            {
-                visitor.Balance += 5000;
-                Console.WriteLine("Бабина пенсія прийшла");
-                Console.WriteLine($"Баланс {visitor.Balance}");
-            }
-            else
-            {
-                visitor.Balance += 5000;
-                Console.WriteLine("Вкрали в циганки гроші");
-                Console.WriteLine($"Баланс {visitor.Balance}");
-            }
+            visitor.Balance += BonusAmount;
+            Console.WriteLine($"{visitor.Name} отримує бонус ${BonusAmount}. Баланс: ${visitor.Balance}");
         }
     }
     public class RestCell : BoardCell
@@ -144,7 +106,7 @@
     // Тюрма
     public class PoliceCell : RestCell
     {
-        public PoliceCell(string v) : base("Тюрма") { }
+        public PoliceCell(string v) : base(v) { }
 
         public override void OnPlayerLand(Player visitor)
         {
@@ -161,7 +123,7 @@
     // Курорт
     public class ResortCell : RestCell
     {
-        public ResortCell(string v) : base("Курорт") { }
+        public ResortCell(string v) : base(v) { }
 
         public override void OnPlayerLand(Player visitor)
         {
