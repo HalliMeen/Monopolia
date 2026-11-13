@@ -11,7 +11,6 @@
             Name = name;
         }
         public virtual void OnPlayerLand(Player visitor) { }
-
     }
 
     public class StreetProperty : BoardCell
@@ -50,23 +49,22 @@
         public ChanceCell(string name) : base(name) { }
         public override void OnPlayerLand(Player visitor)
         {
-            Console.WriteLine($"ШАНС {visitor.Name} випробовує удачу!");
+            Logger.WriteLine($"ШАНС {visitor.Name} випробовує удачу!");
 
             int eventid = random.Next(1, 10);
             if (eventid <= 3)
             {
-                Console.WriteLine("Удача на вашому боці отримуєте 500");
+                Logger.WriteLine("Удача на вашому боці отримуєте 500");
                 visitor.Balance += 500;
             }
-
             else if (eventid <= 6)
             {
-                Console.WriteLine("Улюбленець удачі отримуєте 1000");
+                Logger.WriteLine("Улюбленець удачі отримуєте 1000");
                 visitor.Balance += 1000;
             }
             else
             {
-                Console.WriteLine("ОГО та ти в ударі друже отримуй 2000");
+                Logger.WriteLine("ОГО та ти в ударі друже отримуй 2000");
                 visitor.Balance += 2000;
             }
         }
@@ -84,9 +82,10 @@
         public override void OnPlayerLand(Player visitor)
         {
             visitor.Balance += BonusAmount;
-            Console.WriteLine($"{visitor.Name} отримує бонус ${BonusAmount}. Баланс: ${visitor.Balance}");
+            Logger.WriteLine($"{visitor.Name} отримує бонус ${BonusAmount}. Баланс: ${visitor.Balance}");
         }
     }
+
     public class RestCell : BoardCell
     {
         public RestCell(string name) : base(name) { }
@@ -99,7 +98,7 @@
 
         protected virtual void PrintLandingMessage(Player visitor)
         {
-            Console.WriteLine($"{visitor.Name} потрапив(ла) на {Name}.");
+            Logger.WriteLine($"{visitor.Name} потрапив(ла) на {Name}.");
         }
     }
 
@@ -116,7 +115,7 @@
 
         protected override void PrintLandingMessage(Player visitor)
         {
-            Console.WriteLine($"\n{visitor.Name} затримано поліцією і відправлено в тюрму!");
+            Logger.WriteLine($"\n{visitor.Name} затримано поліцією і відправлено в тюрму!");
         }
     }
 
@@ -133,9 +132,10 @@
 
         protected override void PrintLandingMessage(Player visitor)
         {
-            Console.WriteLine($"\n{visitor.Name} відпочиває на курорті та пропускає наступний хід.");
+            Logger.WriteLine($"\n{visitor.Name} відпочиває на курорті та пропускає наступний хід.");
         }
     }
+
     //Податок
     public class TaxCell : BoardCell
     {
@@ -152,7 +152,7 @@
 
             if (totalOwnedProperties == 0)
             {
-                Console.WriteLine($"{visitor.Name} став на {Name} оскільки немає філій податок становить 0");
+                Logger.WriteLine($"{visitor.Name} став на {Name} оскільки немає філій податок становить 0");
                 return;
             }
 
@@ -160,9 +160,9 @@
 
             visitor.Balance -= totalTax;
 
-            Console.WriteLine($"{visitor.Name} має у власності {totalOwnedProperties}");
-            Console.WriteLine($"Знято грошей {totalOwnedProperties} x ${TaxPerProperty} = ${totalTax}");
-            Console.WriteLine($"Баланс {visitor.Name} становить ${visitor.Balance}");
+            Logger.WriteLine($"{visitor.Name} має у власності {totalOwnedProperties}");
+            Logger.WriteLine($"Знято грошей {totalOwnedProperties} x ${TaxPerProperty} = ${totalTax}");
+            Logger.WriteLine($"Баланс {visitor.Name} становить ${visitor.Balance}");
         }
     }
 }

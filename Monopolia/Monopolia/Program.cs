@@ -1,5 +1,3 @@
-
-
 namespace Monopolia
 {
     using System;
@@ -12,7 +10,9 @@ namespace Monopolia
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-            Console.WriteLine("=== Монополія — Початок гри ===");
+            // Ініціалізуємо логування
+            Logger.StartNewLog();
+            Logger.WriteLine("=== Монополія — Початок гри ===");
 
             int playerCount = 0;
             while (playerCount < 2 || playerCount > 4)
@@ -62,17 +62,17 @@ namespace Monopolia
                 }
 
                 players.Add(new Player(name, chosen));
-                Console.WriteLine($"Додано {name} з фішкою {chosen}\n");
+                Logger.WriteLine($"Додано {name} з фішкою {chosen}\n");
             }
 
             var board = new Board();
-            Console.WriteLine("Оберіть скількома кубикиками будете грати (Введіть 1 або 2): ");
+            Console.WriteLine("Оберіть скількома кубиками будете грати (Введіть 1 або 2): ");
             IDice dice = Console.ReadLine() == "2" ? new TwoDice() : new Dice();
 
-            Console.WriteLine("Гравці готові:");
+            Logger.WriteLine("Гравці готові:");
             foreach (var p in players)
             {
-                Console.WriteLine($"- {p.Name} (Фішка: {p.PlayerToken}) Баланс: ${p.Balance}");
+                Logger.WriteLine($"- {p.Name} (Фішка: {p.PlayerToken}) Баланс: ${p.Balance}");
             }
 
             Console.WriteLine("\nНатисніть будь-яку клавішу для початку гри...");
@@ -89,14 +89,14 @@ namespace Monopolia
                 // --- Обробка перебування на Курорті ---
                 if (current.Curort)
                 {
-                    Console.WriteLine($"\n{current.Name} знаходиться на курорті і пропускає хід.");
+                    Logger.WriteLine($"\n{current.Name} знаходиться на курорті і пропускає хід.");
                     current.JailTurnsCount--;
 
                     if (current.JailTurnsCount <= 0)
                     {
                         current.Curort = false;
                         current.JailTurnsCount = 0;
-                        Console.WriteLine($"{current.Name} повернувся з курорту і може грати наступного разу.");
+                        Logger.WriteLine($"{current.Name} повернувся з курорту і може грати наступного разу.");
                     }
 
                     currentIndex++;
@@ -106,14 +106,14 @@ namespace Monopolia
                 // --- Обробка перебування в Тюрмі ---
                 if (current.Jail)
                 {
-                    Console.WriteLine($"\n{current.Name} знаходиться в тюрмі і пропускає хід. Залишилось пропустити: {current.JailTurnsCount}");
+                    Logger.WriteLine($"\n{current.Name} знаходиться в тюрмі і пропускає хід. Залишилось пропустити: {current.JailTurnsCount}");
                     current.JailTurnsCount--;
 
                     if (current.JailTurnsCount <= 0)
                     {
                         current.Jail = false;
                         current.JailTurnsCount = 0;
-                        Console.WriteLine($"{current.Name} вийшов з тюрми і може грати наступного разу.");
+                        Logger.WriteLine($"{current.Name} вийшов з тюрми і може грати наступного разу.");
                     }
 
                     currentIndex++;
@@ -126,10 +126,10 @@ namespace Monopolia
 
                 var monopolies = board.GetMonopolies(current).ToList();
                 if (monopolies.Count > 0)
-                    Console.WriteLine($"Ваші монополії: {string.Join(", ", monopolies)}");
+                    Logger.WriteLine($"Ваші монополії: {string.Join(", ", monopolies)}");
 
                 int roll = dice.Roll();
-                Console.WriteLine($"{current.Name} викинув: {roll}");
+                Logger.WriteLine($"{current.Name} викинув: {roll}");
 
                 int oldPos = current.Position;
                 int newPos = board.GetNewPosition(oldPos, roll);
@@ -137,29 +137,29 @@ namespace Monopolia
                 if (newPos < oldPos && newPos != 0)
                 {
                     current.Balance += 200;
-                    Console.WriteLine($"{current.Name} пройшов Старт і отримує $200.");
+                    Logger.WriteLine($"{current.Name} пройшов Старт і отримує $200.");
                 }
 
                 var cell = board.GetCell(newPos);
-                Console.WriteLine($"{current.Name} став на клітинку: {cell.Name}");
+                Logger.WriteLine($"{current.Name} став на клітинку: {cell.Name}");
 
-                Player? rentCreditor = null; // кому належить оренда
-                int rentDue = 0;             // скільки оренди нараховано
+                Player? rentCreditor = null;
+                int rentDue = 0;
 
                 if (cell is StreetProperty sp)
                 {
                     if (sp.Owner == null)
                     {
-                        Console.WriteLine($"Філія {sp.Name} доступна для купівлі за ${sp.PurchasePrice}. Ваш баланс: ${current.Balance}");
+                        Logger.WriteLine($"Філія {sp.Name} доступна для купівлі за ${sp.PurchasePrice}. Ваш баланс: ${current.Balance}");
                         if (current.Balance >= sp.PurchasePrice)
                         {
                             int owned = board.CountOwnedInGroup(sp.ColorGroup, current);
                             int total = board.GetStreetGroup(sp.ColorGroup).Count;
-                            Console.WriteLine($"У групі {sp.ColorGroup} у вас {owned} з {total}.");
+                            Logger.WriteLine($"У групі {sp.ColorGroup} у вас {owned} з {total}.");
 
                             if (board.MissingForMonopoly(sp.ColorGroup, current) == 1)
                             {
-                                Console.WriteLine("Купівля цієї вулиці дасть вам монополію (оренда ×3)!");
+                                Logger.WriteLine("Купівля цієї вулиці дасть вам монополію (оренда ×3)!");
                             }
 
                             Console.Write("Бажаєте купити? (y/n): ");
@@ -169,24 +169,24 @@ namespace Monopolia
                                 current.Balance -= sp.PurchasePrice;
                                 sp.Owner = current;
                                 current.OwnedProperties.Add(sp);
-                                Console.WriteLine($"{current.Name} купив {sp.Name} за ${sp.PurchasePrice}. Новий баланс: ${current.Balance}");
+                                Logger.WriteLine($"{current.Name} купив {sp.Name} за ${sp.PurchasePrice}. Новий баланс: ${current.Balance}");
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Недостатньо коштів для купівлі.");
+                            Logger.WriteLine("Недостатньо коштів для купівлі.");
                         }
                     }
                     else if (sp.Owner != current)
                     {
                         if (sp.IsMortgaged)
                         {
-                            Console.WriteLine("Ця філія закладена — оренда не стягується.");
+                            Logger.WriteLine("Ця філія закладена — оренда не стягується.");
                         }
                         else
                         {
                             int rent = sp.GetCurrentRent();
-                            Console.WriteLine($"Потрібно заплатити оренду ${rent} власнику {sp.Owner.Name}.");
+                            Logger.WriteLine($"Потрібно заплатити оренду ${rent} власнику {sp.Owner.Name}.");
                             current.Balance -= rent;
                             rentCreditor = sp.Owner;
                             rentDue = rent;
@@ -201,22 +201,22 @@ namespace Monopolia
                 // --- Перевірка банкрутства ---
                 if (current.Balance < 0)
                 {
-                    Console.WriteLine($"У {current.Name} баланс ${current.Balance}. Перевіряємо можливості продажу філій...");
+                    Logger.WriteLine($"У {current.Name} баланс ${current.Balance}. Перевіряємо можливості продажу філій...");
                     TrySellPropertiesToCoverDebt(current, board);
                 }
 
-                // --- Виплата оренди власнику (тільки те, що боржник реально сплатив) ---
+                // --- Виплата оренди власнику ---
                 if (rentCreditor != null)
                 {
                     int unpaid = Math.Max(0, -current.Balance);
                     int paid = Math.Max(0, rentDue - unpaid);
                     rentCreditor.Balance += paid;
-                    Console.WriteLine($"{rentCreditor.Name} отримує ${paid} оренди від {current.Name}.");
+                    Logger.WriteLine($"{rentCreditor.Name} отримує ${paid} оренди від {current.Name}.");
                 }
 
                 if (current.Balance < 0)
                 {
-                    Console.WriteLine($"{current.Name} став банкрутом і вибуває з гри.");
+                    Logger.WriteLine($"{current.Name} став банкрутом і вибуває з гри.");
                     foreach (var prop in current.OwnedProperties.ToList())
                     {
                         prop.Owner = null;
@@ -237,16 +237,13 @@ namespace Monopolia
 
             if (winner != null)
             {
-                Console.WriteLine($"\nГра завершена. Переможець: {winner.Name} з балансом ${winner.Balance}!");
-
-                // Зберігаємо дату, учасників та переможця в історію ігор
+                Logger.WriteLine($"\nГра завершена. Переможець: {winner.Name} з балансом ${winner.Balance}!");
                 GameHistory.Save(players.Select(p => p.Name).ToList(), winner.Name);
-
-                Console.WriteLine("Історію гри збережено!");
+                Logger.WriteLine("Історію гри збережено!");
             }
             else
             {
-                Console.WriteLine("\nГра завершена. Переможців не знайдено.");
+                Logger.WriteLine("\nГра завершена. Переможців не знайдено.");
             }
 
             Console.WriteLine("Натисніть будь-яку клавішу для виходу...");
@@ -285,7 +282,7 @@ namespace Monopolia
                     player.Balance += sale;
                     prop.Owner = null;
                     player.OwnedProperties.RemoveAt(idx - 1);
-                    Console.WriteLine($"Продано {prop.Name} за ${sale}. Новий баланс: ${player.Balance}");
+                    Logger.WriteLine($"Продано {prop.Name} за ${sale}. Новий баланс: ${player.Balance}");
                 }
                 else
                 {
