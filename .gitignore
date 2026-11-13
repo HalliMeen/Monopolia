@@ -3,3 +3,5 @@
 ################################################################################
 
 /Monopolia/.vs/Monopolia.slnx
+/Monopolia/Monopolia/obj/Debug/net10.0
+/.gitignore
